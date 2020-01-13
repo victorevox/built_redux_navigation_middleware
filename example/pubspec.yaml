@@ -1,0 +1,21 @@
+name: example
+version: 7.0.4
+description: >
+  Just an example, not for publishing.
+authors:
+- Victor Heredia <victorevox@gmail.com>
+homepage: https://github.com/victorevox/built_redux_navigation_middleware
+
+environment:
+  sdk: '>=2.0.0-dev <3.0.0'
+
+dependencies:
+  built_collection: '>=2.0.0 <5.0.0'
+  built_value: ^7.0.2
+
+dev_dependencies:
+  build_runner: ^1.0.0
+  built_value_generator: ^7.0.4
+  pedantic: ^1.4.0
+  quiver: '>=0.21.0 <3.0.0'
+  test: ^1.0.0
