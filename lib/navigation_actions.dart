@@ -23,11 +23,7 @@ abstract class NavigationActions extends ReduxActions {
 
 abstract class NavigationPushNamedPayload
     implements
-        Built<NavigationPushNamedPayload, NavigationPushNamedPayloadBuilder> {
-  // Fields
-  String get name;
-  @nullable
-  Object get arguments;
+        NavigationPushRoute, Built<NavigationPushNamedPayload, NavigationPushNamedPayloadBuilder> {
 
   NavigationPushNamedPayload._();
 
@@ -56,14 +52,11 @@ abstract class NavigationPopUntilPayload
 }
 
 abstract class NavigationPushNamedAndRemoveUntilPayload
-    implements
+    implements NavigationPushRoute,
         Built<NavigationPushNamedAndRemoveUntilPayload,
             NavigationPushNamedAndRemoveUntilPayloadBuilder> {
   // Fields
   bool Function(material.Route<dynamic>) get predicate;
-  String get name;
-  @nullable
-  Object get arguments;
 
   NavigationPushNamedAndRemoveUntilPayload._();
 
@@ -77,4 +70,10 @@ abstract class NavigationPushNamedAndRemoveUntilPayload
         predicate: predicate,
         arguments: arguments,
       );
+}
+
+abstract class NavigationPushRoute {
+  String get name;
+  @nullable
+  Object get arguments;
 }

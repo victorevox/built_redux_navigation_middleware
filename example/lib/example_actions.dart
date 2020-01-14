@@ -6,7 +6,6 @@ import 'package:built_redux_navigation_middleware/built_redux_navigation_middlew
 import 'package:built_value/built_value.dart';
 import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
-import 'package:flutter/material.dart';
 
 part 'example_actions.g.dart';
 

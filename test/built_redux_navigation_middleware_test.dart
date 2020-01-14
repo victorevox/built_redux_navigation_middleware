@@ -18,9 +18,24 @@ class MockNavigatorState extends Mock implements NavigatorState {
   }
 }
 
+class MyNavigationGuard implements NavigationGuard {
+  @override
+  GuardedPushedRoute call(String name, Object arguments) {
+    switch (name) {
+      case "shouldBeOverriden":
+        name = "wasOverriden";
+        arguments = {"prop": "overrided"};
+        break;
+      default:
+    }
+    return GuardedPushedRoute(name: name, arguments: arguments);
+  }
+}
+
 void main() {
   Store<ExampleStore, ExampleStoreBuilder, ExampleActions> store;
   NavigationService mockNavigationService;
+  NavigationGuard navigationGuardExample = MyNavigationGuard();
 
   setUp(() {
     mockNavigationService = MockNavigationService();
@@ -30,7 +45,11 @@ void main() {
         ExampleActions(),
         middleware: [
           NavigationMiddleware<ExampleStore, ExampleStoreBuilder,
-              ExampleActions>(navigationService: mockNavigationService)()
+                  ExampleActions>(
+              navigationService: mockNavigationService,
+              navigationGuards: [
+                navigationGuardExample,
+              ])()
         ]);
   });
 
@@ -110,6 +129,43 @@ void main() {
     });
   });
 
+  group("guard", () {
+    test("override", () {
+      store.actions.navigation.pushNamed(
+        NavigationPushNamedPayload(name: "shouldBeOverriden"),
+      );
+      store.actions.navigation.pushNamedAndRemoveUntil(
+        NavigationPushNamedAndRemoveUntilPayload(name: "shouldBeOverriden", predicate: (_){return false;}),
+      );
+      store.actions.navigation.pushReplacementNamed(
+        NavigationPushNamedPayload(name: "shouldBeOverriden"),
+      );
+      store.actions.navigation.removeHistoryAndPushNamed(
+        NavigationPushNamedPayload(name: "shouldBeOverriden"),
+      );
+      verify(
+        mockNavigationService.pushNamed(
+          "wasOverriden",
+          arguments: anyNamed("arguments"),
+        ),
+      );
+      verify(
+        mockNavigationService.pushNamedAndRemoveUntil(
+          "wasOverriden",
+          any,
+          arguments: anyNamed("arguments"),
+        ),
+      );
+      verify(
+        mockNavigationService.pushReplacementNamed(
+          "wasOverriden",
+          arguments: anyNamed("arguments"),
+        ),
+      );
+    });
+
+  });
+
   group("service impl", () {
     NavigationService navigationService;
     MockNavigatorKey mockNavigatorKey;
@@ -149,8 +205,9 @@ void main() {
       };
       navigationService.pushNamedAndRemoveUntil("test", predicate);
       final state = mockNavigatorKey.currentState;
-      verify(state
-          .pushNamedAndRemoveUntil("test", predicate),);
+      verify(
+        state.pushNamedAndRemoveUntil("test", predicate),
+      );
     });
 
     test("pushReplacementNamed", () {

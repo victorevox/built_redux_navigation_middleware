@@ -1,5 +1,6 @@
 import 'package:built_redux/built_redux.dart';
 import 'package:built_redux_navigation_middleware/navigation_actions.dart';
+import 'package:built_redux_navigation_middleware/navigation_guard.dart';
 import 'package:built_redux_navigation_middleware/navigation_service.dart';
 import 'package:built_value/built_value.dart';
 import 'package:meta/meta.dart';
@@ -8,10 +9,10 @@ import 'package:meta/meta.dart';
 class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     A extends ReduxActions> {
   final NavigationService navigationService;
+  List<NavigationGuard> navigationGuards = [];
 
-  NavigationMiddleware({
-    @required this.navigationService,
-  });
+  NavigationMiddleware(
+      {@required this.navigationService, this.navigationGuards});
 
   call() {
     return (MiddlewareBuilder<V, B, A>()
@@ -26,7 +27,10 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
             NavigationActionsNames.pushReplacementNamed,
             pushReplacementNamed,
           )
-          ..add(NavigationActionsNames.removeHistoryAndPushNamed, removeHistoryAndPushNamed,)
+          ..add(
+            NavigationActionsNames.removeHistoryAndPushNamed,
+            removeHistoryAndPushNamed,
+          )
           ..add(
             NavigationActionsNames.popUntil,
             popUntil,
@@ -39,11 +43,8 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedPayload> action,
   ) {
-    // final payload = action.payload as NavigationPushNamedPayload;
-    // Navigator.of(payload.context).pushNamed(payload.name);
-    this
-        .navigationService
-        .pushNamed(action.payload.name, arguments: action.payload.arguments);
+    final data = _applyGuard(action.payload);
+    this.navigationService.pushNamed(data.name, arguments: data.arguments);
     next(action);
   }
 
@@ -52,8 +53,11 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedPayload> action,
   ) {
-    this.navigationService.pushReplacementNamed(action.payload.name,
-        arguments: action.payload.arguments);
+    final data = _applyGuard(action.payload);
+    this.navigationService.pushReplacementNamed(
+          data.name,
+          arguments: data.arguments,
+        );
     next(action);
   }
 
@@ -80,9 +84,12 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedAndRemoveUntilPayload> action,
   ) {
+    final data = _applyGuard(action.payload);
     this.navigationService.pushNamedAndRemoveUntil(
-        action.payload.name, action.payload.predicate,
-        arguments: action.payload.arguments);
+          action.payload.name,
+          action.payload.predicate,
+          arguments: data.arguments,
+        );
     next(action);
   }
 
@@ -91,13 +98,31 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedPayload> action,
   ) {
+    final data = _applyGuard(action.payload);
     this.navigationService.pushNamedAndRemoveUntil(
-      action.payload.name,
+      data.name,
       (_) {
         return false;
       },
-      arguments: action.payload.arguments,
+      arguments: data.arguments,
     );
     next(action);
+  }
+
+  GuardedPushedRoute _applyGuard(NavigationPushRoute route) {
+    final String oringinalRoute = route.name;
+    final Object originalArgs = route.arguments;
+    GuardedPushedRoute newRoute;
+    if (navigationGuards.length > 0) {
+      newRoute = navigationGuards.map((guard) {
+        return guard(route.name, route.arguments);
+      }).last;
+    }
+    return GuardedPushedRoute(
+      name: newRoute.name,
+      arguments: newRoute.arguments,
+      originalArguments: originalArgs,
+      originalName: oringinalRoute,
+    );
   }
 }
