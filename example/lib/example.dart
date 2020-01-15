@@ -1,2 +1,2 @@
 export "example_actions.dart";
-export 'example_store.dart';
+export 'example_state.dart';

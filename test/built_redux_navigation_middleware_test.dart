@@ -6,7 +6,7 @@ import '../example/lib/example.dart';
 
 import 'package:built_redux_navigation_middleware/built_redux_navigation_middleware.dart';
 
-// class MockNavigationMiddleware extends Mock implements NavigationMiddleware<ExampleStore, ExampleStoreBuilder, ExampleActions>{}
+// class MockNavigationMiddleware extends Mock implements NavigationMiddleware<ExampleState, ExampleStateBuilder, ExampleActions>{}
 class MockNavigationService extends Mock implements NavigationService {}
 
 class MockNavigatorKey extends Mock implements GlobalKey<NavigatorState> {}
@@ -18,13 +18,14 @@ class MockNavigatorState extends Mock implements NavigatorState {
   }
 }
 
-class MyNavigationGuard implements NavigationGuard {
+class MyNavigationGuard
+    implements NavigationGuard<ExampleState, ExampleStateBuilder> {
   @override
-  GuardedPushedRoute call(String name, Object arguments) {
+  GuardedPushedRoute call(String name, Object arguments, ExampleState state) {
     switch (name) {
       case "shouldBeOverriden":
         name = "wasOverriden";
-        arguments = {"prop": "overrided"};
+        arguments = {"prop": "overrided", "stateProp": state.exampleProp};
         break;
       default:
     }
@@ -33,18 +34,20 @@ class MyNavigationGuard implements NavigationGuard {
 }
 
 void main() {
-  Store<ExampleStore, ExampleStoreBuilder, ExampleActions> store;
+  Store<ExampleState, ExampleStateBuilder, ExampleActions> store;
   NavigationService mockNavigationService;
   NavigationGuard navigationGuardExample = MyNavigationGuard();
 
+  final String _stateProp = "test";
+
   setUp(() {
     mockNavigationService = MockNavigationService();
-    store = Store<ExampleStore, ExampleStoreBuilder, ExampleActions>(
-        ReducerBuilder<ExampleStore, ExampleStoreBuilder>().build(),
-        ExampleStore(),
+    store = Store<ExampleState, ExampleStateBuilder, ExampleActions>(
+        ReducerBuilder<ExampleState, ExampleStateBuilder>().build(),
+        ExampleState().rebuild((b) => b..exampleProp = _stateProp),
         ExampleActions(),
         middleware: [
-          NavigationMiddleware<ExampleStore, ExampleStoreBuilder,
+          NavigationMiddleware<ExampleState, ExampleStateBuilder,
                   ExampleActions>(
               navigationService: mockNavigationService,
               navigationGuards: [
@@ -135,7 +138,11 @@ void main() {
         NavigationPushNamedPayload(name: "shouldBeOverriden"),
       );
       store.actions.navigation.pushNamedAndRemoveUntil(
-        NavigationPushNamedAndRemoveUntilPayload(name: "shouldBeOverriden", predicate: (_){return false;}),
+        NavigationPushNamedAndRemoveUntilPayload(
+            name: "shouldBeOverriden",
+            predicate: (_) {
+              return false;
+            }),
       );
       store.actions.navigation.pushReplacementNamed(
         NavigationPushNamedPayload(name: "shouldBeOverriden"),
@@ -164,6 +171,22 @@ void main() {
       );
     });
 
+    test("store state access", () {
+      final NavigationPushNamedPayload payload =
+          NavigationPushNamedPayload(name: "shouldBeOverriden", arguments: {
+        "test": "test",
+      });
+      store.actions.navigation.pushNamed(payload);
+      verify(
+        mockNavigationService.pushNamed(
+          "wasOverriden",
+          arguments: containsPair(
+            "stateProp",
+            _stateProp,
+          ),
+        ),
+      );
+    });
   });
 
   group("service impl", () {

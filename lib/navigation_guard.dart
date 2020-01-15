@@ -9,8 +9,8 @@ import 'package:built_value/serializer.dart';
 
 part 'navigation_guard.g.dart';
 
-abstract class NavigationGuard {
-  GuardedPushedRoute call(String name, Object arguments);
+abstract class NavigationGuard<V extends Built<V, B>, B extends Builder<V, B>> {
+  GuardedPushedRoute call(String name, Object arguments, V state);
 }
 
 abstract class GuardedPushedRoute

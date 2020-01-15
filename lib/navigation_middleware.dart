@@ -43,7 +43,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedPayload> action,
   ) {
-    final data = _applyGuard(action.payload);
+    final data = _applyGuard(action.payload, api.state);
     this.navigationService.pushNamed(data.name, arguments: data.arguments);
     next(action);
   }
@@ -53,7 +53,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedPayload> action,
   ) {
-    final data = _applyGuard(action.payload);
+    final data = _applyGuard(action.payload, api.state);
     this.navigationService.pushReplacementNamed(
           data.name,
           arguments: data.arguments,
@@ -84,7 +84,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedAndRemoveUntilPayload> action,
   ) {
-    final data = _applyGuard(action.payload);
+    final data = _applyGuard(action.payload, api.state);
     this.navigationService.pushNamedAndRemoveUntil(
           action.payload.name,
           action.payload.predicate,
@@ -98,7 +98,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPushNamedPayload> action,
   ) {
-    final data = _applyGuard(action.payload);
+    final data = _applyGuard(action.payload, api.state);
     this.navigationService.pushNamedAndRemoveUntil(
       data.name,
       (_) {
@@ -109,13 +109,13 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next(action);
   }
 
-  GuardedPushedRoute _applyGuard(NavigationPushRoute route) {
+  GuardedPushedRoute _applyGuard(NavigationPushRoute route, V state) {
     final String oringinalRoute = route.name;
     final Object originalArgs = route.arguments;
     GuardedPushedRoute newRoute;
     if (navigationGuards.length > 0) {
       newRoute = navigationGuards.map((guard) {
-        return guard(route.name, route.arguments);
+        return guard(route.name, route.arguments, state);
       }).last;
     }
     return GuardedPushedRoute(
