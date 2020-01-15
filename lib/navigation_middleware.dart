@@ -9,10 +9,12 @@ import 'package:meta/meta.dart';
 class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     A extends ReduxActions> {
   final NavigationService navigationService;
-  List<NavigationGuard> navigationGuards = [];
+  List<NavigationGuard> _navigationGuards;
 
   NavigationMiddleware(
-      {@required this.navigationService, this.navigationGuards});
+      {@required this.navigationService, navigationGuards}){
+        _navigationGuards = navigationGuards?? [];
+      }
 
   call() {
     return (MiddlewareBuilder<V, B, A>()
@@ -113,8 +115,8 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     final String oringinalRoute = route.name;
     final Object originalArgs = route.arguments;
     GuardedPushedRoute newRoute;
-    if (navigationGuards.length > 0) {
-      newRoute = navigationGuards.map((guard) {
+    if (_navigationGuards.length > 0) {
+      newRoute = _navigationGuards.map((guard) {
         return guard(route.name, route.arguments, state);
       }).last;
     }
