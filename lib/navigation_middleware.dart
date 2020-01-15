@@ -114,7 +114,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
   GuardedPushedRoute _applyGuard(NavigationPushRoute route, V state) {
     final String oringinalRoute = route.name;
     final Object originalArgs = route.arguments;
-    GuardedPushedRoute newRoute;
+    GuardedPushedRoute newRoute = GuardedPushedRoute(name: oringinalRoute, arguments: originalArgs);
     if (_navigationGuards.length > 0) {
       newRoute = _navigationGuards.map((guard) {
         return guard(route.name, route.arguments, state);

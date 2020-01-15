@@ -239,4 +239,93 @@ void main() {
       verify(state.pushReplacementNamed("test"));
     });
   });
+
+  group("no guards", () {
+    setUp(() {
+      store = Store<ExampleState, ExampleStateBuilder, ExampleActions>(
+          ReducerBuilder<ExampleState, ExampleStateBuilder>().build(),
+          ExampleState().rebuild((b) => b..exampleProp = _stateProp),
+          ExampleActions(),
+          middleware: [
+            NavigationMiddleware<ExampleState, ExampleStateBuilder,
+                ExampleActions>(
+              navigationService: mockNavigationService,
+            )()
+          ]);
+    });
+
+    test("pop", () {
+      store.actions.navigation.pop();
+      verify(mockNavigationService.pop());
+    });
+
+    test("popUntil", () {
+      final RoutePredicate predicate = (_) {
+        return false;
+      };
+      final NavigationPopUntilPayload payload =
+          NavigationPopUntilPayload(predicate: predicate);
+      store.actions.navigation.popUntil(payload);
+      verify(mockNavigationService.popUntil(payload.predicate));
+    });
+
+    test("pushNamed", () {
+      final NavigationPushNamedPayload payload =
+          NavigationPushNamedPayload(name: "test", arguments: {
+        "test": "test",
+      });
+      store.actions.navigation.pushNamed(payload);
+      verify(mockNavigationService.pushNamed(
+        payload.name,
+        arguments: payload.arguments,
+      ));
+    });
+
+    test("pushNamedAndRemoveUntil", () {
+      final RoutePredicate predicate = (_) {
+        return false;
+      };
+      final NavigationPushNamedAndRemoveUntilPayload payload =
+          NavigationPushNamedAndRemoveUntilPayload(
+              name: "test",
+              predicate: predicate,
+              arguments: {
+            "test": "test",
+          });
+      store.actions.navigation.pushNamedAndRemoveUntil(payload);
+      verify(mockNavigationService.pushNamedAndRemoveUntil(
+        payload.name,
+        payload.predicate,
+        arguments: payload.arguments,
+      ));
+    });
+
+    test("pushReplacementNamed", () {
+      final RoutePredicate predicate = (_) {
+        return false;
+      };
+      final NavigationPushNamedPayload payload =
+          NavigationPushNamedPayload(name: "test", arguments: {
+        "test": "test",
+      });
+      store.actions.navigation.pushReplacementNamed(payload);
+      verify(mockNavigationService.pushReplacementNamed(
+        payload.name,
+        arguments: payload.arguments,
+      ));
+    });
+
+    test("removeHistoryAndPushNamed", () {
+      final NavigationPushNamedPayload payload =
+          NavigationPushNamedPayload(name: "test", arguments: {
+        "test": "test",
+      });
+      store.actions.navigation.removeHistoryAndPushNamed(payload);
+      verify(mockNavigationService.pushNamedAndRemoveUntil(
+        payload.name,
+        any,
+        arguments: payload.arguments,
+      ));
+    });
+  });
 }
