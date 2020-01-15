@@ -1,4 +1,5 @@
 import 'package:built_redux/built_redux.dart';
+import 'package:built_redux/built_redux_test_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -21,7 +22,8 @@ class MockNavigatorState extends Mock implements NavigatorState {
 class MyNavigationGuard
     implements NavigationGuard<ExampleState, ExampleStateBuilder> {
   @override
-  GuardedPushedRoute call(String name, Object arguments, ExampleState state) {
+  Future<GuardedPushedRoute> call(
+      String name, Object arguments, ExampleState state) async {
     switch (name) {
       case "shouldBeOverriden":
         name = "wasOverriden";
@@ -72,19 +74,21 @@ void main() {
       verify(mockNavigationService.popUntil(payload.predicate));
     });
 
-    test("pushNamed", () {
+    test("pushNamed", () async {
       final NavigationPushNamedPayload payload =
           NavigationPushNamedPayload(name: "test", arguments: {
         "test": "test",
       });
       store.actions.navigation.pushNamed(payload);
-      verify(mockNavigationService.pushNamed(
-        payload.name,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushNamed(
+          payload.name,
+          arguments: payload.arguments,
+        ));
+      });
     });
 
-    test("pushNamedAndRemoveUntil", () {
+    test("pushNamedAndRemoveUntil", () async {
       final RoutePredicate predicate = (_) {
         return false;
       };
@@ -96,14 +100,16 @@ void main() {
             "test": "test",
           });
       store.actions.navigation.pushNamedAndRemoveUntil(payload);
-      verify(mockNavigationService.pushNamedAndRemoveUntil(
-        payload.name,
-        payload.predicate,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushNamedAndRemoveUntil(
+          payload.name,
+          payload.predicate,
+          arguments: payload.arguments,
+        ));
+      });
     });
 
-    test("pushReplacementNamed", () {
+    test("pushReplacementNamed", () async {
       final RoutePredicate predicate = (_) {
         return false;
       };
@@ -112,28 +118,32 @@ void main() {
         "test": "test",
       });
       store.actions.navigation.pushReplacementNamed(payload);
-      verify(mockNavigationService.pushReplacementNamed(
-        payload.name,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushReplacementNamed(
+          payload.name,
+          arguments: payload.arguments,
+        ));
+      });
     });
 
-    test("removeHistoryAndPushNamed", () {
+    test("removeHistoryAndPushNamed", () async {
       final NavigationPushNamedPayload payload =
           NavigationPushNamedPayload(name: "test", arguments: {
         "test": "test",
       });
       store.actions.navigation.removeHistoryAndPushNamed(payload);
-      verify(mockNavigationService.pushNamedAndRemoveUntil(
-        payload.name,
-        any,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushNamedAndRemoveUntil(
+          payload.name,
+          any,
+          arguments: payload.arguments,
+        ));
+      });
     });
   });
 
   group("guard", () {
-    test("override", () {
+    test("override", () async {
       store.actions.navigation.pushNamed(
         NavigationPushNamedPayload(name: "shouldBeOverriden"),
       );
@@ -150,42 +160,46 @@ void main() {
       store.actions.navigation.removeHistoryAndPushNamed(
         NavigationPushNamedPayload(name: "shouldBeOverriden"),
       );
-      verify(
-        mockNavigationService.pushNamed(
-          "wasOverriden",
-          arguments: anyNamed("arguments"),
-        ),
-      );
-      verify(
-        mockNavigationService.pushNamedAndRemoveUntil(
-          "wasOverriden",
-          any,
-          arguments: anyNamed("arguments"),
-        ),
-      );
-      verify(
-        mockNavigationService.pushReplacementNamed(
-          "wasOverriden",
-          arguments: anyNamed("arguments"),
-        ),
-      );
+      await delayed(() {
+        verify(
+          mockNavigationService.pushNamed(
+            "wasOverriden",
+            arguments: anyNamed("arguments"),
+          ),
+        );
+        verify(
+          mockNavigationService.pushNamedAndRemoveUntil(
+            "wasOverriden",
+            any,
+            arguments: anyNamed("arguments"),
+          ),
+        );
+        verify(
+          mockNavigationService.pushReplacementNamed(
+            "wasOverriden",
+            arguments: anyNamed("arguments"),
+          ),
+        );
+      });
     });
 
-    test("store state access", () {
+    test("store state access", () async {
       final NavigationPushNamedPayload payload =
           NavigationPushNamedPayload(name: "shouldBeOverriden", arguments: {
         "test": "test",
       });
       store.actions.navigation.pushNamed(payload);
-      verify(
-        mockNavigationService.pushNamed(
-          "wasOverriden",
-          arguments: containsPair(
-            "stateProp",
-            _stateProp,
+      await delayed(() {
+        verify(
+          mockNavigationService.pushNamed(
+            "wasOverriden",
+            arguments: containsPair(
+              "stateProp",
+              _stateProp,
+            ),
           ),
-        ),
-      );
+        );
+      });
     });
   });
 
@@ -269,19 +283,21 @@ void main() {
       verify(mockNavigationService.popUntil(payload.predicate));
     });
 
-    test("pushNamed", () {
+    test("pushNamed", () async {
       final NavigationPushNamedPayload payload =
           NavigationPushNamedPayload(name: "test", arguments: {
         "test": "test",
       });
       store.actions.navigation.pushNamed(payload);
-      verify(mockNavigationService.pushNamed(
-        payload.name,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushNamed(
+          payload.name,
+          arguments: payload.arguments,
+        ));
+      });
     });
 
-    test("pushNamedAndRemoveUntil", () {
+    test("pushNamedAndRemoveUntil", () async {
       final RoutePredicate predicate = (_) {
         return false;
       };
@@ -293,14 +309,16 @@ void main() {
             "test": "test",
           });
       store.actions.navigation.pushNamedAndRemoveUntil(payload);
-      verify(mockNavigationService.pushNamedAndRemoveUntil(
-        payload.name,
-        payload.predicate,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushNamedAndRemoveUntil(
+          payload.name,
+          payload.predicate,
+          arguments: payload.arguments,
+        ));
+      });
     });
 
-    test("pushReplacementNamed", () {
+    test("pushReplacementNamed", () async {
       final RoutePredicate predicate = (_) {
         return false;
       };
@@ -309,23 +327,32 @@ void main() {
         "test": "test",
       });
       store.actions.navigation.pushReplacementNamed(payload);
-      verify(mockNavigationService.pushReplacementNamed(
-        payload.name,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushReplacementNamed(
+          payload.name,
+          arguments: payload.arguments,
+        ));
+      });
     });
 
-    test("removeHistoryAndPushNamed", () {
+    test("removeHistoryAndPushNamed", () async {
       final NavigationPushNamedPayload payload =
           NavigationPushNamedPayload(name: "test", arguments: {
         "test": "test",
       });
       store.actions.navigation.removeHistoryAndPushNamed(payload);
-      verify(mockNavigationService.pushNamedAndRemoveUntil(
-        payload.name,
-        any,
-        arguments: payload.arguments,
-      ));
+      await delayed(() {
+        verify(mockNavigationService.pushNamedAndRemoveUntil(
+          payload.name,
+          any,
+          arguments: payload.arguments,
+        ));
+      });
     });
   });
+}
+
+Future<void> delayed(Function cb) async {
+  await Future.delayed(Duration(milliseconds: 1));
+  cb();
 }

@@ -44,8 +44,8 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     api,
     next,
     Action<NavigationPushNamedPayload> action,
-  ) {
-    final data = _applyGuard(action.payload, api.state);
+  ) async {
+    final data = await _applyGuard(action.payload, api.state);
     this.navigationService.pushNamed(data.name, arguments: data.arguments);
     next(action);
   }
@@ -54,8 +54,8 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     MiddlewareApi<V, B, A> api,
     next,
     Action<NavigationPushNamedPayload> action,
-  ) {
-    final data = _applyGuard(action.payload, api.state);
+  ) async {
+    final data = await _applyGuard(action.payload, api.state);
     this.navigationService.pushReplacementNamed(
           data.name,
           arguments: data.arguments,
@@ -85,8 +85,8 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     MiddlewareApi<V, B, A> api,
     next,
     Action<NavigationPushNamedAndRemoveUntilPayload> action,
-  ) {
-    final data = _applyGuard(action.payload, api.state);
+  ) async {
+    final data = await _applyGuard(action.payload, api.state);
     this.navigationService.pushNamedAndRemoveUntil(
           action.payload.name,
           action.payload.predicate,
@@ -99,8 +99,8 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     MiddlewareApi<V, B, A> api,
     next,
     Action<NavigationPushNamedPayload> action,
-  ) {
-    final data = _applyGuard(action.payload, api.state);
+  ) async {
+    final data = await _applyGuard(action.payload, api.state);
     this.navigationService.pushNamedAndRemoveUntil(
       data.name,
       (_) {
@@ -111,14 +111,15 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next(action);
   }
 
-  GuardedPushedRoute _applyGuard(NavigationPushRoute route, V state) {
+  Future<GuardedPushedRoute> _applyGuard(NavigationPushRoute route, V state) async {
     final String oringinalRoute = route.name;
     final Object originalArgs = route.arguments;
     GuardedPushedRoute newRoute = GuardedPushedRoute(name: oringinalRoute, arguments: originalArgs);
     if (_navigationGuards.length > 0) {
-      newRoute = _navigationGuards.map((guard) {
+      final res = await Future.wait(_navigationGuards.map((guard) {
         return guard(route.name, route.arguments, state);
-      }).last;
+      }).toList());
+      newRoute = res.last;
     }
     return GuardedPushedRoute(
       name: newRoute.name,
