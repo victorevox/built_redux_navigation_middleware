@@ -19,7 +19,7 @@ class NavigationServiceImpl implements NavigationService {
     return navigatorKey.currentState.pushNamedAndRemoveUntil(name, predicate, arguments: arguments);
   }
 
-  bool pop() {
+  void pop() {
     return navigatorKey.currentState.pop();
   }
 

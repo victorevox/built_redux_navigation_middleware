@@ -11,7 +11,7 @@ abstract class NavigationService {
     Object arguments,
   });
 
-  bool pop();
+  void pop();
 
   void popUntil(bool Function(Route<dynamic>) predicate);
 }
