@@ -19,7 +19,8 @@ class _$NavigationActions extends NavigationActions {
       'NavigationActions-pushNamed');
   final pushReplacementNamed = new ActionDispatcher<NavigationPushNamedPayload>(
       'NavigationActions-pushReplacementNamed');
-  final pop = new ActionDispatcher<void>('NavigationActions-pop');
+  final pop =
+      new ActionDispatcher<widgets.BuildContext>('NavigationActions-pop');
   final popUntil = new ActionDispatcher<NavigationPopUntilPayload>(
       'NavigationActions-popUntil');
   final pushNamedAndRemoveUntil =
@@ -46,7 +47,8 @@ class NavigationActionsNames {
   static final pushReplacementNamed =
       new ActionName<NavigationPushNamedPayload>(
           'NavigationActions-pushReplacementNamed');
-  static final pop = new ActionName<void>('NavigationActions-pop');
+  static final pop =
+      new ActionName<widgets.BuildContext>('NavigationActions-pop');
   static final popUntil =
       new ActionName<NavigationPopUntilPayload>('NavigationActions-popUntil');
   static final pushNamedAndRemoveUntil =
@@ -66,12 +68,15 @@ class _$NavigationPushNamedPayload extends NavigationPushNamedPayload {
   final String name;
   @override
   final Object arguments;
+  @override
+  final widgets.BuildContext context;
 
   factory _$NavigationPushNamedPayload(
           [void Function(NavigationPushNamedPayloadBuilder) updates]) =>
       (new NavigationPushNamedPayloadBuilder()..update(updates)).build();
 
-  _$NavigationPushNamedPayload._({this.name, this.arguments}) : super._() {
+  _$NavigationPushNamedPayload._({this.name, this.arguments, this.context})
+      : super._() {
     if (name == null) {
       throw new BuiltValueNullFieldError('NavigationPushNamedPayload', 'name');
     }
@@ -91,19 +96,22 @@ class _$NavigationPushNamedPayload extends NavigationPushNamedPayload {
     if (identical(other, this)) return true;
     return other is NavigationPushNamedPayload &&
         name == other.name &&
-        arguments == other.arguments;
+        arguments == other.arguments &&
+        context == other.context;
   }
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, name.hashCode), arguments.hashCode));
+    return $jf(
+        $jc($jc($jc(0, name.hashCode), arguments.hashCode), context.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('NavigationPushNamedPayload')
           ..add('name', name)
-          ..add('arguments', arguments))
+          ..add('arguments', arguments)
+          ..add('context', context))
         .toString();
   }
 }
@@ -121,12 +129,17 @@ class NavigationPushNamedPayloadBuilder
   Object get arguments => _$this._arguments;
   set arguments(Object arguments) => _$this._arguments = arguments;
 
+  widgets.BuildContext _context;
+  widgets.BuildContext get context => _$this._context;
+  set context(widgets.BuildContext context) => _$this._context = context;
+
   NavigationPushNamedPayloadBuilder();
 
   NavigationPushNamedPayloadBuilder get _$this {
     if (_$v != null) {
       _name = _$v.name;
       _arguments = _$v.arguments;
+      _context = _$v.context;
       _$v = null;
     }
     return this;
@@ -148,7 +161,8 @@ class NavigationPushNamedPayloadBuilder
   @override
   _$NavigationPushNamedPayload build() {
     final _$result = _$v ??
-        new _$NavigationPushNamedPayload._(name: name, arguments: arguments);
+        new _$NavigationPushNamedPayload._(
+            name: name, arguments: arguments, context: context);
     replace(_$result);
     return _$result;
   }
@@ -157,12 +171,14 @@ class NavigationPushNamedPayloadBuilder
 class _$NavigationPopUntilPayload extends NavigationPopUntilPayload {
   @override
   final bool Function(material.Route<dynamic>) predicate;
+  @override
+  final widgets.BuildContext context;
 
   factory _$NavigationPopUntilPayload(
           [void Function(NavigationPopUntilPayloadBuilder) updates]) =>
       (new NavigationPopUntilPayloadBuilder()..update(updates)).build();
 
-  _$NavigationPopUntilPayload._({this.predicate}) : super._() {
+  _$NavigationPopUntilPayload._({this.predicate, this.context}) : super._() {
     if (predicate == null) {
       throw new BuiltValueNullFieldError(
           'NavigationPopUntilPayload', 'predicate');
@@ -183,18 +199,20 @@ class _$NavigationPopUntilPayload extends NavigationPopUntilPayload {
     if (identical(other, this)) return true;
     final _$dynamicOther = other as dynamic;
     return other is NavigationPopUntilPayload &&
-        predicate == _$dynamicOther.predicate;
+        predicate == _$dynamicOther.predicate &&
+        context == other.context;
   }
 
   @override
   int get hashCode {
-    return $jf($jc(0, predicate.hashCode));
+    return $jf($jc($jc(0, predicate.hashCode), context.hashCode));
   }
 
   @override
   String toString() {
     return (newBuiltValueToStringHelper('NavigationPopUntilPayload')
-          ..add('predicate', predicate))
+          ..add('predicate', predicate)
+          ..add('context', context))
         .toString();
   }
 }
@@ -209,11 +227,16 @@ class NavigationPopUntilPayloadBuilder
   set predicate(bool Function(material.Route<dynamic>) predicate) =>
       _$this._predicate = predicate;
 
+  widgets.BuildContext _context;
+  widgets.BuildContext get context => _$this._context;
+  set context(widgets.BuildContext context) => _$this._context = context;
+
   NavigationPopUntilPayloadBuilder();
 
   NavigationPopUntilPayloadBuilder get _$this {
     if (_$v != null) {
       _predicate = _$v.predicate;
+      _context = _$v.context;
       _$v = null;
     }
     return this;
@@ -234,8 +257,9 @@ class NavigationPopUntilPayloadBuilder
 
   @override
   _$NavigationPopUntilPayload build() {
-    final _$result =
-        _$v ?? new _$NavigationPopUntilPayload._(predicate: predicate);
+    final _$result = _$v ??
+        new _$NavigationPopUntilPayload._(
+            predicate: predicate, context: context);
     replace(_$result);
     return _$result;
   }
@@ -245,6 +269,8 @@ class _$NavigationPushNamedAndRemoveUntilPayload
     extends NavigationPushNamedAndRemoveUntilPayload {
   @override
   final bool Function(material.Route<dynamic>) predicate;
+  @override
+  final widgets.BuildContext context;
   @override
   final String name;
   @override
@@ -257,7 +283,7 @@ class _$NavigationPushNamedAndRemoveUntilPayload
           .build();
 
   _$NavigationPushNamedAndRemoveUntilPayload._(
-      {this.predicate, this.name, this.arguments})
+      {this.predicate, this.context, this.name, this.arguments})
       : super._() {
     if (predicate == null) {
       throw new BuiltValueNullFieldError(
@@ -285,6 +311,7 @@ class _$NavigationPushNamedAndRemoveUntilPayload
     final _$dynamicOther = other as dynamic;
     return other is NavigationPushNamedAndRemoveUntilPayload &&
         predicate == _$dynamicOther.predicate &&
+        context == other.context &&
         name == other.name &&
         arguments == other.arguments;
   }
@@ -292,7 +319,8 @@ class _$NavigationPushNamedAndRemoveUntilPayload
   @override
   int get hashCode {
     return $jf($jc(
-        $jc($jc(0, predicate.hashCode), name.hashCode), arguments.hashCode));
+        $jc($jc($jc(0, predicate.hashCode), context.hashCode), name.hashCode),
+        arguments.hashCode));
   }
 
   @override
@@ -300,6 +328,7 @@ class _$NavigationPushNamedAndRemoveUntilPayload
     return (newBuiltValueToStringHelper(
             'NavigationPushNamedAndRemoveUntilPayload')
           ..add('predicate', predicate)
+          ..add('context', context)
           ..add('name', name)
           ..add('arguments', arguments))
         .toString();
@@ -317,6 +346,10 @@ class NavigationPushNamedAndRemoveUntilPayloadBuilder
   set predicate(bool Function(material.Route<dynamic>) predicate) =>
       _$this._predicate = predicate;
 
+  widgets.BuildContext _context;
+  widgets.BuildContext get context => _$this._context;
+  set context(widgets.BuildContext context) => _$this._context = context;
+
   String _name;
   String get name => _$this._name;
   set name(String name) => _$this._name = name;
@@ -330,6 +363,7 @@ class NavigationPushNamedAndRemoveUntilPayloadBuilder
   NavigationPushNamedAndRemoveUntilPayloadBuilder get _$this {
     if (_$v != null) {
       _predicate = _$v.predicate;
+      _context = _$v.context;
       _name = _$v.name;
       _arguments = _$v.arguments;
       _$v = null;
@@ -355,7 +389,10 @@ class NavigationPushNamedAndRemoveUntilPayloadBuilder
   _$NavigationPushNamedAndRemoveUntilPayload build() {
     final _$result = _$v ??
         new _$NavigationPushNamedAndRemoveUntilPayload._(
-            predicate: predicate, name: name, arguments: arguments);
+            predicate: predicate,
+            context: context,
+            name: name,
+            arguments: arguments);
     replace(_$result);
     return _$result;
   }

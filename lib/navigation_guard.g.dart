@@ -12,6 +12,8 @@ class _$GuardedPushedRoute extends GuardedPushedRoute {
   @override
   final Object originalArguments;
   @override
+  final widgets.BuildContext context;
+  @override
   final String name;
   @override
   final Object arguments;
@@ -21,7 +23,11 @@ class _$GuardedPushedRoute extends GuardedPushedRoute {
       (new GuardedPushedRouteBuilder()..update(updates)).build();
 
   _$GuardedPushedRoute._(
-      {this.originalName, this.originalArguments, this.name, this.arguments})
+      {this.originalName,
+      this.originalArguments,
+      this.context,
+      this.name,
+      this.arguments})
       : super._() {
     if (name == null) {
       throw new BuiltValueNullFieldError('GuardedPushedRoute', 'name');
@@ -43,6 +49,7 @@ class _$GuardedPushedRoute extends GuardedPushedRoute {
     return other is GuardedPushedRoute &&
         originalName == other.originalName &&
         originalArguments == other.originalArguments &&
+        context == other.context &&
         name == other.name &&
         arguments == other.arguments;
   }
@@ -50,7 +57,9 @@ class _$GuardedPushedRoute extends GuardedPushedRoute {
   @override
   int get hashCode {
     return $jf($jc(
-        $jc($jc($jc(0, originalName.hashCode), originalArguments.hashCode),
+        $jc(
+            $jc($jc($jc(0, originalName.hashCode), originalArguments.hashCode),
+                context.hashCode),
             name.hashCode),
         arguments.hashCode));
   }
@@ -60,6 +69,7 @@ class _$GuardedPushedRoute extends GuardedPushedRoute {
     return (newBuiltValueToStringHelper('GuardedPushedRoute')
           ..add('originalName', originalName)
           ..add('originalArguments', originalArguments)
+          ..add('context', context)
           ..add('name', name)
           ..add('arguments', arguments))
         .toString();
@@ -79,6 +89,10 @@ class GuardedPushedRouteBuilder
   set originalArguments(Object originalArguments) =>
       _$this._originalArguments = originalArguments;
 
+  widgets.BuildContext _context;
+  widgets.BuildContext get context => _$this._context;
+  set context(widgets.BuildContext context) => _$this._context = context;
+
   String _name;
   String get name => _$this._name;
   set name(String name) => _$this._name = name;
@@ -93,6 +107,7 @@ class GuardedPushedRouteBuilder
     if (_$v != null) {
       _originalName = _$v.originalName;
       _originalArguments = _$v.originalArguments;
+      _context = _$v.context;
       _name = _$v.name;
       _arguments = _$v.arguments;
       _$v = null;
@@ -119,6 +134,7 @@ class GuardedPushedRouteBuilder
         new _$GuardedPushedRoute._(
             originalName: originalName,
             originalArguments: originalArguments,
+            context: context,
             name: name,
             arguments: arguments);
     replace(_$result);

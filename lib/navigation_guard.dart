@@ -4,6 +4,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:meta/meta.dart';
 import 'package:built_redux_navigation_middleware/built_redux_navigation_middleware.dart';
 import 'package:built_value/built_value.dart';
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:built_value/json_object.dart';
 import 'package:built_value/serializer.dart';
 
@@ -21,6 +22,9 @@ abstract class GuardedPushedRoute
   String get originalName;
   @nullable
   Object get originalArguments;
+  @override
+  @nullable
+  widgets.BuildContext get context;
 
   GuardedPushedRoute._();
 

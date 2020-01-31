@@ -1,4 +1,5 @@
 import 'package:built_redux/built_redux.dart';
+import 'package:flutter/widgets.dart' as widgets;
 import 'package:built_redux_navigation_middleware/navigation_actions.dart';
 import 'package:built_redux_navigation_middleware/navigation_guard.dart';
 import 'package:built_redux_navigation_middleware/navigation_service.dart';
@@ -11,10 +12,9 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
   final NavigationService navigationService;
   List<NavigationGuard> _navigationGuards;
 
-  NavigationMiddleware(
-      {@required this.navigationService, navigationGuards}){
-        _navigationGuards = navigationGuards?? [];
-      }
+  NavigationMiddleware({@required this.navigationService, navigationGuards}) {
+    _navigationGuards = navigationGuards ?? [];
+  }
 
   call() {
     return (MiddlewareBuilder<V, B, A>()
@@ -46,7 +46,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     Action<NavigationPushNamedPayload> action,
   ) async {
     final data = await _applyGuard(action.payload, api.state);
-    this.navigationService.pushNamed(data.name, arguments: data.arguments);
+    this.navigationService.pushNamed(data.name, arguments: data.arguments, context: action.payload.context);
     next(action);
   }
 
@@ -59,6 +59,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     this.navigationService.pushReplacementNamed(
           data.name,
           arguments: data.arguments,
+          context: action.payload.context,
         );
     next(action);
   }
@@ -68,16 +69,18 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
     next,
     Action<NavigationPopUntilPayload> action,
   ) {
-    this.navigationService.popUntil(action.payload.predicate);
+    this
+        .navigationService
+        .popUntil(action.payload.predicate, action.payload.context);
     next(action);
   }
 
   void pop(
     MiddlewareApi<V, B, A> api,
     next,
-    Action<void> action,
+    Action<widgets.BuildContext> action,
   ) {
-    this.navigationService.pop();
+    this.navigationService.pop(action.payload);
     next(action);
   }
 
@@ -91,6 +94,7 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
           action.payload.name,
           action.payload.predicate,
           arguments: data.arguments,
+          context: action.payload.context,
         );
     next(action);
   }
@@ -107,14 +111,17 @@ class NavigationMiddleware<V extends Built<V, B>, B extends Builder<V, B>,
         return false;
       },
       arguments: data.arguments,
+      context: action.payload.context,
     );
     next(action);
   }
 
-  Future<GuardedPushedRoute> _applyGuard(NavigationPushRoute route, V state) async {
+  Future<GuardedPushedRoute> _applyGuard(
+      NavigationPushRoute route, V state) async {
     final String oringinalRoute = route.name;
     final Object originalArgs = route.arguments;
-    GuardedPushedRoute newRoute = GuardedPushedRoute(name: oringinalRoute, arguments: originalArgs);
+    GuardedPushedRoute newRoute =
+        GuardedPushedRoute(name: oringinalRoute, arguments: originalArgs);
     if (_navigationGuards.length > 0) {
       final res = await Future.wait(_navigationGuards.map((guard) {
         return guard(route.name, route.arguments, state);

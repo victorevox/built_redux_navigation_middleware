@@ -12,6 +12,8 @@ class MockNavigationService extends Mock implements NavigationService {}
 
 class MockNavigatorKey extends Mock implements GlobalKey<NavigatorState> {}
 
+class MockBuildContext extends Mock implements BuildContext {}
+
 class MockNavigatorState extends Mock implements NavigatorState {
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.debug}) {
@@ -39,11 +41,13 @@ void main() {
   Store<ExampleState, ExampleStateBuilder, ExampleActions> store;
   NavigationService mockNavigationService;
   NavigationGuard navigationGuardExample = MyNavigationGuard();
+  MockBuildContext mockBuildContext;
 
   final String _stateProp = "test";
 
   setUp(() {
     mockNavigationService = MockNavigationService();
+    mockBuildContext = MockBuildContext();
     store = Store<ExampleState, ExampleStateBuilder, ExampleActions>(
         ReducerBuilder<ExampleState, ExampleStateBuilder>().build(),
         ExampleState().rebuild((b) => b..exampleProp = _stateProp),
@@ -62,6 +66,8 @@ void main() {
     test("pop", () {
       store.actions.navigation.pop();
       verify(mockNavigationService.pop());
+      store.actions.navigation.pop(mockBuildContext);
+      verify(mockNavigationService.pop(mockBuildContext));
     });
 
     test("popUntil", () {
@@ -72,6 +78,15 @@ void main() {
           NavigationPopUntilPayload(predicate: predicate);
       store.actions.navigation.popUntil(payload);
       verify(mockNavigationService.popUntil(payload.predicate));
+
+      final NavigationPopUntilPayload payloadWithContext =
+          NavigationPopUntilPayload(
+        predicate: predicate,
+        context: mockBuildContext,
+      );
+      store.actions.navigation.popUntil(payloadWithContext);
+      verify(mockNavigationService.popUntil(
+          payloadWithContext.predicate, payloadWithContext.context));
     });
 
     test("pushNamed", () async {
@@ -84,6 +99,23 @@ void main() {
         verify(mockNavigationService.pushNamed(
           payload.name,
           arguments: payload.arguments,
+        ));
+      });
+
+      final NavigationPushNamedPayload payloadWithContext =
+          NavigationPushNamedPayload(
+        name: "test",
+        arguments: {
+          "test": "test",
+        },
+        context: mockBuildContext,
+      );
+      store.actions.navigation.pushNamed(payloadWithContext);
+      await delayed(() {
+        verify(mockNavigationService.pushNamed(
+          payloadWithContext.name,
+          arguments: payloadWithContext.arguments,
+          context: payloadWithContext.context,
         ));
       });
     });
@@ -107,6 +139,25 @@ void main() {
           arguments: payload.arguments,
         ));
       });
+
+      final NavigationPushNamedAndRemoveUntilPayload payloadWithContext =
+          NavigationPushNamedAndRemoveUntilPayload(
+        name: "test",
+        predicate: predicate,
+        arguments: {
+          "test": "test",
+        },
+        context: mockBuildContext,
+      );
+      store.actions.navigation.pushNamedAndRemoveUntil(payloadWithContext);
+      await delayed(() {
+        verify(mockNavigationService.pushNamedAndRemoveUntil(
+          payloadWithContext.name,
+          payloadWithContext.predicate,
+          arguments: payloadWithContext.arguments,
+          context: mockBuildContext,
+        ));
+      });
     });
 
     test("pushReplacementNamed", () async {
@@ -124,6 +175,23 @@ void main() {
           arguments: payload.arguments,
         ));
       });
+
+      final NavigationPushNamedPayload payloadWithContext =
+          NavigationPushNamedPayload(
+        name: "test",
+        arguments: {
+          "test": "test",
+        },
+        context: mockBuildContext,
+      );
+      store.actions.navigation.pushReplacementNamed(payloadWithContext);
+      await delayed(() {
+        verify(mockNavigationService.pushReplacementNamed(
+          payloadWithContext.name,
+          arguments: payloadWithContext.arguments,
+          context: mockBuildContext,
+        ));
+      });
     });
 
     test("removeHistoryAndPushNamed", () async {
@@ -137,6 +205,20 @@ void main() {
           payload.name,
           any,
           arguments: payload.arguments,
+        ));
+      });
+
+      final NavigationPushNamedPayload payloadWithContext =
+          NavigationPushNamedPayload(name: "test", arguments: {
+        "test": "test",
+      });
+      store.actions.navigation.removeHistoryAndPushNamed(payloadWithContext);
+      await delayed(() {
+        verify(mockNavigationService.pushNamedAndRemoveUntil(
+          payloadWithContext.name,
+          any,
+          arguments: payloadWithContext.arguments,
+          context: payloadWithContext.context,
         ));
       });
     });
